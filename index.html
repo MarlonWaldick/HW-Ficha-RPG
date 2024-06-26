@@ -1,0 +1,1005 @@
+<!DOCTYPE HTML5>
+<html lang="pt-br">
+<meta charset= "UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<head>
+  <title>Dados de Pericia</title>
+  <link rel="icon" type="image/x-icon" href="img/favicon.ico">
+  <!-- Links do CSS e das libs, respectivamente -->
+  <link rel="stylesheet" type="text/css" href="img/stlDados.css">
+  <link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/css/toastr.min.css">
+  <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.4/jquery.min.js"></script>
+  <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/js/toastr.min.js"></script>
+  <script type="text/javascript">
+      let temCritico = 0;
+      let temDesastre = 0;
+      let toastCor = "orange";
+
+      let FOR = $("#FOR").val();
+      let AGI = $("#AGI").val();
+      let INT = $("#INT").val();
+      let CON = $("#CON").val();
+      let CAR = $("#CAR").val();
+
+
+    /* Func pra pegar o nome da pericia pra por no Toast */
+      function periChosen(pericia) {
+        let pEscolhida = $("#" + pericia).text(); /* pega o nome dá pericia a partir do ID */
+        console.log('escolheu');
+        return pEscolhida;
+      };
+
+    /* Func para mudar a imagem dos contadores de vida, sanidade etc. */
+      function imgAdjust(atu, max) {
+        var atual = parseInt($("." + atu).val());
+        var maximo = parseInt($("." + max).val());
+
+        if (!isNaN(atual) && !isNaN(maximo)) {
+          if (atual <= maximo) {
+            switch (max) {
+              case "maxHP":
+                $(".imgHP").attr("src", "img/hp100.png");
+                console.log('foilá');
+                break
+              case "maxSAN":
+                $(".imgSAN").attr("src", "img/san100.png");
+                break
+              case "maxPV":
+                $(".imgPV").attr("src", "img/pv100.png");
+                break
+              case "maxMP":
+                $(".imgMP").attr("src", "img/mp100.png");
+                break
+            }
+          }
+          if (atual <= maximo * 0.5) {
+            switch (max) {
+              case "maxHP":
+                $(".imgHP").attr("src", "img/hp50.png");
+                break
+              case "maxSAN":
+                $(".imgSAN").attr("src", "img/san50.png");
+                break
+              case "maxPV":
+                $(".imgPV").attr("src", "img/pv50.png");
+                break
+              case "maxMP":
+                $(".imgMP").attr("src", "img/mp50.png");
+                break
+            }
+          }
+          if (atual <= 0) {
+            switch (atu) {
+              case "actHP":
+                $(".imgHP").attr("src", "img/hp0.png");
+                break
+              case "actSAN":
+                $(".imgSAN").attr("src", "img/san0.png");
+                break
+              case "actPV":
+                $(".imgPV").attr("src", "img/pv0.png");
+                break
+              case "actMP":
+                $(".imgMP").attr("src", "img/mp0.png");
+                break
+            }
+          }
+        }
+      }
+
+    /* Func para limitar o número do atributo */
+      function updateAtr(atr) {
+        let atributo = atr
+        if (atr <= 0 || isNaN(atr)) {
+          atributo = 1
+        }
+        if (atr >= 29) {
+          atributo = 28
+        }
+
+        return atributo;
+      }
+    /* Func para ajustar o número dos modificadores */
+      function updateMod(atr, valor) {
+        let metade = Math.floor(valor / 2);
+        switch (atr) {
+        case "FOR":
+            $("#modifica1").text(metade);
+            break
+        case "INT":
+            $("#modifica2").text(metade);
+            break
+        case "CAR":
+            $("#modifica3").text(metade);
+            break
+        case "RES":
+            $("#modifica4").text(metade);
+            break
+        case "AGI":
+            $("#modifica5").text(metade);
+            break
+        default:
+            console.log("vish...")
+            break
+        }
+      };
+
+    /* Func pra rolar e enviar o resultado do D20 pro displayDado */
+      function rolagemDado(habil, modifier) {
+        let result = Math.floor(Math.random() * 20) + 1;
+        switch (result) { /* Switch pra saber se teve um 20/1 natural nos dado, mandando pras vars globais */
+          case 20:
+            temCritico = 1;
+            console.log("20 natural reconhecido");
+            break
+          case 1:
+            temDesastre = 1;
+            console.log("1 natural reconhecido");
+            break
+          default:
+            break
+          }
+        console.log("natural: ",result);
+
+        let mod = $('#' + modifier).text(); /* somador do modificador */
+        result += parseInt(mod);
+        console.log("modificado: ", result)
+
+        let plus = $('#' + habil).val(); /* var e switch para o nivel de habilidade */
+        switch (plus) {
+
+          case "iniciante":
+            result += 3;
+            console.log("iniciante");
+            break
+
+          case "treinado":
+            result += 7;
+            console.log("treinado");
+            break
+
+          case "competente":
+            result += 14;
+            console.log("competente");
+            break
+
+          case "especialista":
+            result += 16;
+            console.log("especialista");
+            break
+
+          case "nao":
+            default:
+              console.log("default");
+              result += 0;
+        }
+        console.log('rolou');
+        return result;
+      };
+      
+      /* Func que muda onde o toast fica dependendo da resolução da tela */
+      function ajustToast() {
+        if (window.innerWidth <= 760) {
+          toastr.options.positionClass = 'toast-top-right';
+        } else { toastr.options.positionClass = 'toast-bottom-right'; }
+      }
+
+      /* Func que pega o nome, roda os dados e mostra tudo no Popup (toastr.info) */
+      function displayDado(peri, dInput, habili, modifier) {
+          let num = "";                       /* var de apoio pra mostrar no Popup todos os valores q deram */
+          let x = $('#' + dInput);            /* var pra pegar qual o roll respectivo em questão e pegar o numero input usando o "vezes"*/
+          let vezes = x.val();
+
+          if (vezes < 1) {
+              vezes = 1;
+          };
+          for (let i = 0; i < vezes; i++){
+              let dado = rolagemDado(habili, modifier); /* Aonde ocorre a passagem de quaisquer bônuses */
+              num += " | " + dado + " | ";
+          };
+          
+          toastr.info(num, periChosen(peri), { /* configs do Toast */
+              "closeButton": true,
+              "debug": false,
+              "newestOnTop": false,
+              "progressBar": false,
+              "preventDuplicates": false,
+              "onclick": null,
+              "showDuration": "300",
+              "hideDuration": "1000",
+              "timeOut": 0,
+              "extendedTimeOut": 0,
+              "showEasing": "swing",
+              "hideEasing": "linear",
+              "closeEasing": "swing",
+              "showMethod": "fadeIn",
+              "hideMethod": "fadeOut"
+            })
+
+          /* If pra mudar a cor do popup em caso de extremos e desastres (muda de todos no momento) */
+          if (temCritico == 1 && temDesastre == 0) {
+                toastCor = "green";
+                $(".toast").css("background-color", toastCor);
+                temCritico = 0;
+              }
+          else if (temDesastre == 1 && temCritico == 0) {
+                toastCor = "red";
+                $(".toast").css("background-color", toastCor);
+                temDesastre = 0;
+              }
+          else if (temDesastre == 1 && temCritico == 1) {
+                toastCor = "gray";
+                $(".toast").css("background-color", toastCor);
+                temCritico = 0;
+                temDesastre = 0;
+              }
+          else {toastCor = "orange"; $(".toast").css("background-color", toastCor);}
+      };
+      
+      /* Func que pega tudo que soma daquela perícia pra retornar o valor */
+      function displayBonus(modi, habili) {
+        let modifier = $('#' + modi).text(); // Transforma o valor em Int
+        let treino = $('#' + habili).val();
+        let total = 0;
+
+        total += parseInt(modifier); /* Soma o número do modificador */
+
+
+        switch (treino) { /* Soma dependendo do treinamento */
+          case "iniciante":
+            total += 3
+            break
+          case "treinado":
+            total += 7
+            break
+          case "competente":
+            total += 14
+            break
+          case "especialista":
+            total += 16
+            break
+          case "nao":
+            default:
+              break
+        }
+        return total;
+      };
+    $(document).ready(function(){
+      if (typeof(Storage) !== "undefined") {
+        console.log("1");
+      }
+      else {
+        console.log("0");
+      }
+
+    /* Func que adapta pra onde fica o Toast */
+      ajustToast();
+
+    /* atualização das informações de bônus ao carregar a página */
+      bonus = displayBonus('modifica2', 'habil1')
+      $("#tBonus1").text("(" + bonus + ")");
+      bonus = displayBonus('modifica2', 'habil2')
+      $("#tBonus2").text("(" + bonus + ")");
+      bonus = displayBonus('modifica1', 'habil3')
+      $("#tBonus3").text("(" + bonus + ")");
+      bonus = displayBonus('modifica1', 'habil4')
+      $("#tBonus4").text("(" + bonus + ")");
+      bonus = displayBonus('modifica5', 'habil5')
+      $("#tBonus5").text("(" + bonus + ")");
+      bonus = displayBonus('modifica2', 'habil6')
+      $("#tBonus6").text("(" + bonus + ")");
+      bonus = displayBonus('modifica1', 'habil7')
+      $("#tBonus7").text("(" + bonus + ")");
+      bonus = displayBonus('modifica2', 'habil8')
+      $("#tBonus8").text("(" + bonus + ")");
+      bonus = displayBonus('modifica3', 'habil9')
+      $("#tBonus9").text("(" + bonus + ")");
+      bonus = displayBonus('modifica2', 'habil10')
+      $("#tBonus10").text("(" + bonus + ")");
+      bonus = displayBonus('modifica1', 'habil11')
+      $("#tBonus11").text("(" + bonus + ")");
+      bonus = displayBonus('modifica3', 'habil12')
+      $("#tBonus12").text("(" + bonus + ")");
+      bonus = displayBonus('modifica5', 'habil13')
+      $("#tBonus13").text("(" + bonus + ")");
+      bonus = displayBonus('modifica2', 'habil14')
+      $("#tBonus14").text("(" + bonus + ")");
+      bonus = displayBonus('modifica5', 'habil15')
+      $("#tBonus15").text("(" + bonus + ")");
+      bonus = displayBonus('modifica3', 'habil16')
+      $("#tBonus16").text("(" + bonus + ")");
+      bonus = displayBonus('modifica2', 'habil17')
+      $("#tBonus17").text("(" + bonus + ")");
+      bonus = displayBonus('modifica3', 'habil18')
+      $("#tBonus18").text("(" + bonus + ")");
+      bonus = displayBonus('modifica2', 'habil19')
+      $("#tBonus19").text("(" + bonus + ")");
+      bonus = displayBonus('modifica2', 'habil20')
+      $("#tBonus20").text("(" + bonus + ")");
+      bonus = displayBonus('modifica2', 'habil21')
+      $("#tBonus21").text("(" + bonus + ")");
+      bonus = displayBonus('modifica2', 'habil22')
+      $("#tBonus22").text("(" + bonus + ")");
+      bonus = displayBonus('modifica2', 'habil23')
+      $("#tBonus23").text("(" + bonus + ")");
+      bonus = displayBonus('modifica2', 'habil24')
+      $("#tBonus24").text("(" + bonus + ")");
+
+    /* Troca as img dependendo da porcentagem */
+      $('.actHP, .maxHP').on('change', function() {
+        imgAdjust('actHP', 'maxHP');
+      });
+      $('.actSAN, .maxSAN').on('change', function() {
+        imgAdjust('actSAN', 'maxSAN');
+      });
+      $('.actPV, .maxPV').on('change', function() {
+        imgAdjust('actPV', 'maxPV');
+      });
+      $('.actMP, .maxMP').on('change', function() {
+        imgAdjust('actMP', 'maxMP');
+      });
+
+    /* ativação por desfoque dos penta de "atributos" */
+      $("#FOR").on("change", function() {
+          let forca = $("#FOR").val();
+          forca = updateAtr(forca);
+          $("#FOR").val(forca);
+          updateMod("FOR", forca);
+
+          /* TRECHO PRA ATUALIZAR OS BÔNUS */
+            bonus = displayBonus('modifica1', 'habil3')
+            $("#tBonus3").text("(" + bonus + ")");
+            bonus = displayBonus('modifica1', 'habil4')
+            $("#tBonus4").text("(" + bonus + ")");
+            bonus = displayBonus('modifica1', 'habil7')
+            $("#tBonus7").text("(" + bonus + ")");
+            bonus = displayBonus('modifica1', 'habil11')
+            $("#tBonus11").text("(" + bonus + ")");
+            bonus = displayBonus('modifica2', 'habil6')
+            $("#tBonus6").text("(" + bonus + ")");
+      });
+
+      $("#INT").on("change", function() {
+          let inteligencia = $("#INT").val();
+          inteligencia = updateAtr(inteligencia);
+          $("#INT").val(inteligencia);
+          updateMod("INT", inteligencia);
+
+          /* TRECHO PRA ATUALIZAR OS BÔNUS */
+            bonus = displayBonus('modifica2', 'habil1')
+            $("#tBonus1").text("(" + bonus + ")");
+            bonus = displayBonus('modifica2', 'habil2')
+            $("#tBonus2").text("(" + bonus + ")");
+            bonus = displayBonus('modifica2', 'habil6')
+            $("#tBonus6").text("(" + bonus + ")");
+            bonus = displayBonus('modifica2', 'habil8')
+            $("#tBonus8").text("(" + bonus + ")");
+            bonus = displayBonus('modifica2', 'habil10')
+            $("#tBonus10").text("(" + bonus + ")");
+            bonus = displayBonus('modifica2', 'habil14')
+            $("#tBonus14").text("(" + bonus + ")");
+            bonus = displayBonus('modifica2', 'habil17')
+            $("#tBonus17").text("(" + bonus + ")");
+            bonus = displayBonus('modifica2', 'habil19')
+            $("#tBonus19").text("(" + bonus + ")");
+            bonus = displayBonus('modifica2', 'habil20')
+            $("#tBonus20").text("(" + bonus + ")");
+            bonus = displayBonus('modifica2', 'habil21')
+            $("#tBonus21").text("(" + bonus + ")");
+            bonus = displayBonus('modifica2', 'habil22')
+            $("#tBonus22").text("(" + bonus + ")");
+            bonus = displayBonus('modifica2', 'habil23')
+            $("#tBonus23").text("(" + bonus + ")");
+            bonus = displayBonus('modifica2', 'habil24')
+            $("#tBonus24").text("(" + bonus + ")");
+      });
+
+      $("#CAR").on("change", function() {
+          let carisma = $("#CAR").val();
+          carisma = updateAtr(carisma);
+          $("#CAR").val(carisma);
+          updateMod("CAR", carisma);
+
+          /* TRECHO PRA ATUALIZAR OS BÔNUS */
+            bonus = displayBonus('modifica3', 'habil9')
+            $("#tBonus9").text("(" + bonus + ")");
+            bonus = displayBonus('modifica3', 'habil12')
+            $("#tBonus12").text("(" + bonus + ")");
+            bonus = displayBonus('modifica3', 'habil16')
+            $("#tBonus16").text("(" + bonus + ")");
+            bonus = displayBonus('modifica3', 'habil16')
+            $("#tBonus16").text("(" + bonus + ")");
+            bonus = displayBonus('modifica3', 'habil18')
+            $("#tBonus18").text("(" + bonus + ")");
+      });
+
+      $("#RES").on("change", function() {
+          let resistencia = $("#RES").val();
+          resistencia = updateAtr(resistencia);
+          $("#RES").val(resistencia);
+          updateMod("RES", resistencia);
+
+          /* NÃO TEM BÔNUS PRA ATUALIZAR KKKK */
+      });
+
+      $("#AGI").on("change", function() {
+          let agilidade = $("#AGI").val();
+          agilidade = updateAtr(agilidade);
+          $("#AGI").val(agilidade);
+          updateMod("AGI", agilidade);
+
+          /* TRECHO PRA ATUALIZAR OS BÔNUS */
+            bonus = displayBonus('modifica5', 'habil5')
+            $("#tBonus5").text("(" + bonus + ")");
+            bonus = displayBonus('modifica5', 'habil13')
+            $("#tBonus13").text("(" + bonus + ")");
+            bonus = displayBonus('modifica5', 'habil15')
+            $("#tBonus15").text("(" + bonus + ")");
+      });
+
+    /* ativação por click, passando o nome e o input */
+      $( "#btnPeri1" ).on( "click", function() {
+           displayDado('PericiA','pericia1','habil1','modifica2')
+      });
+      $( "#btnPeri2" ).on( "click", function() {
+           displayDado('PericiB','pericia2','habil2','modifica2')
+      });
+      $( "#btnPeri3" ).on( "click", function() {
+           displayDado('PericiC','pericia3','habil3','modifica1')
+      });
+      $( "#btnPeri4" ).on( "click", function() {
+           displayDado('PericiD','pericia4','habil4','modifica1')
+      });
+      $( "#btnPeri5" ).on( "click", function() {
+           displayDado('PericiE','pericia5','habil5','modifica5')
+      });
+      $( "#btnPeri6" ).on( "click", function() {
+           displayDado('PericiF','pericia6','habil6','modifica2')
+      });
+      $( "#btnPeri7" ).on( "click", function() {
+           displayDado('PericiG','pericia7','habil7','modifica1')
+      });
+      $( "#btnPeri8" ).on( "click", function() {
+           displayDado('PericiH','pericia8','habil8','modifica2')
+      });
+      $( "#btnPeri9" ).on( "click", function() {
+           displayDado('PericiI','pericia9','habil9','modifica3')
+      });
+      $( "#btnPeri10" ).on( "click", function() {
+           displayDado('PericiJ','pericia10','habil10','modifica2')
+      });
+      $( "#btnPeri11" ).on( "click", function() {
+           displayDado('PericiK','pericia11','habil11','modifica1')
+      });
+      $( "#btnPeri12" ).on( "click", function() {
+           displayDado('PericiL','pericia12','habil12','modifica3')
+      });
+      $( "#btnPeri13" ).on( "click", function() {
+           displayDado('PericiM','pericia13','habil13','modifica5')
+      });
+      $( "#btnPeri14" ).on( "click", function() {
+           displayDado('PericiN','pericia14','habil14','modifica2')
+      });
+      $( "#btnPeri15" ).on( "click", function() {
+           displayDado('PericiO','pericia15','habil15','modifica5')
+      });
+      $( "#btnPeri16" ).on( "click", function() {
+           displayDado('PericiP','pericia16','habil16','modifica3')
+      });
+      $( "#btnPeri17" ).on( "click", function() {
+           displayDado('PericiQ','pericia17','habil17','modifica2')
+      });
+      $( "#btnPeri18" ).on( "click", function() {
+           displayDado('PericiR','pericia18','habil18','modifica3')
+      });
+      $( "#btnPeri19" ).on( "click", function() {
+           displayDado('PericiS','pericia19','habil19','modifica2')
+      });
+      $( "#btnPeri20" ).on( "click", function() {
+           displayDado('PericiT','pericia20','habil20','modifica2')
+      });
+      $( "#btnPeri21" ).on( "click", function() {
+           displayDado('PericiU','pericia21','habil21','modifica2')
+      });
+      $( "#btnPeri22" ).on( "click", function() {
+           displayDado('PericiV','pericia22','habil22','modifica2')
+      });
+      $( "#btnPeri23" ).on( "click", function() {
+           displayDado('PericiW','pericia23','habil23','modifica2')
+      });
+      $( "#btnPeri24" ).on( "click", function() {
+           displayDado('PericiX','pericia24','habil24','modifica2')
+      });
+      $( "#btnPeri25" ).on( "click", function() {
+           displayDado('PericiY','pericia25','habil25','modifica6')
+      });
+
+    /* Detectores de mudança para mostrar nos bônus */
+      $("#habil1").on( "change", function() {
+          bonus = displayBonus('modifica2', 'habil1') /* modificadores de 1 a 5 - FOR, INT, CAR, RES, AGI */
+          $("#tBonus1").text("(" + bonus + ")");
+      });
+      $("#habil2").on( "change", function() {
+          bonus = displayBonus('modifica2', 'habil2')
+          $("#tBonus2").text("(" + bonus + ")");
+      });
+      $("#habil3").on( "change", function() {
+          bonus = displayBonus('modifica1', 'habil3')
+          $("#tBonus3").text("(" + bonus + ")");
+      });
+      $("#habil4").on( "change", function() {
+          bonus = displayBonus('modifica1', 'habil4')
+          $("#tBonus4").text("(" + bonus + ")");
+      });
+      $("#habil5").on( "change", function() {
+          bonus = displayBonus('modifica5', 'habil5')
+          $("#tBonus5").text("(" + bonus + ")");
+      });
+      $("#habil6").on( "change", function() {
+          bonus = displayBonus('modifica2', 'habil6')
+          $("#tBonus6").text("(" + bonus + ")");
+      });
+      $("#habil7").on( "change", function() {
+          bonus = displayBonus('modifica1', 'habil7')
+          $("#tBonus7").text("(" + bonus + ")");
+      });
+      $("#habil8").on( "change", function() {
+          bonus = displayBonus('modifica2', 'habil8')
+          $("#tBonus8").text("(" + bonus + ")");
+      });
+      $("#habil9").on( "change", function() {
+          bonus = displayBonus('modifica3', 'habil9')
+          $("#tBonus9").text("(" + bonus + ")");
+      });
+      $("#habil10").on( "change", function() {
+          bonus = displayBonus('modifica2', 'habil10')
+          $("#tBonus10").text("(" + bonus + ")");
+      });
+      $("#habil11").on( "change", function() {
+          bonus = displayBonus('modifica1', 'habil11')
+          $("#tBonus11").text("(" + bonus + ")");
+      });
+      $("#habil12").on( "change", function() {
+          bonus = displayBonus('modifica3', 'habil12')
+          $("#tBonus12").text("(" + bonus + ")");
+      });
+      $("#habil13").on( "change", function() {
+          bonus = displayBonus('modifica5', 'habil13')
+          $("#tBonus13").text("(" + bonus + ")");
+      });
+      $("#habil14").on( "change", function() {
+          bonus = displayBonus('modifica2', 'habil14')
+          $("#tBonus14").text("(" + bonus + ")");
+      });
+      $("#habil15").on( "change", function() {
+          bonus = displayBonus('modifica5', 'habil15')
+          $("#tBonus15").text("(" + bonus + ")");
+      });
+      $("#habil16").on( "change", function() {
+          bonus = displayBonus('modifica3', 'habil16')
+          $("#tBonus16").text("(" + bonus + ")");
+      });
+      $("#habil17").on( "change", function() {
+          bonus = displayBonus('modifica2', 'habil17')
+          $("#tBonus17").text("(" + bonus + ")");
+      });
+      $("#habil18").on( "change", function() {
+          bonus = displayBonus('modifica3', 'habil18')
+          $("#tBonus18").text("(" + bonus + ")");
+      });
+      $("#habil19").on( "change", function() {
+          bonus = displayBonus('modifica2', 'habil19')
+          $("#tBonus19").text("(" + bonus + ")");
+      });
+      $("#habil20").on( "change", function() {
+          bonus = displayBonus('modifica2', 'habil20')
+          $("#tBonus20").text("(" + bonus + ")");
+      });
+      $("#habil21").on( "change", function() {
+          bonus = displayBonus('modifica2', 'habil21')
+          $("#tBonus21").text("(" + bonus + ")");
+      });
+      $("#habil22").on( "change", function() {
+          bonus = displayBonus('modifica2', 'habil22')
+          $("#tBonus22").text("(" + bonus + ")");
+      });
+      $("#habil23").on( "change", function() {
+          bonus = displayBonus('modifica2', 'habil23')
+          $("#tBonus23").text("(" + bonus + ")");
+      });
+      $("#habil24").on( "change", function() {
+          bonus = displayBonus('modifica2', 'habil24')
+          $("#tBonus24").text("(" + bonus + ")");
+      });
+    });
+
+  </script>
+</head>
+<body>
+  <div class="name">
+    <label class="nameLa">Personagem: </label>
+    <input class="nameIn" type="text" name="nomeChar" placeholder="Nome">
+  </div>
+  <h1 class="titl">Status</h1>
+  <div class="statusInfos">
+    <div class="divHP">
+      <img class="imgHP"src="img/hp100.png">
+      <input type="number" class="actHP" placeholder="ATU">
+      <input type="number" class="maxHP" placeholder="MAX">
+    </div>
+    <div class="divSAN">
+      <img class="imgSAN"src="img/san100.png">
+      <input type="number" class="actSAN" placeholder="ATU">
+      <input type="number" class="maxSAN" placeholder="MAX">
+    </div>
+    <div class="divPV">
+      <img class="imgPV"src="img/pv100.png">
+      <input type="number" class="actPV" placeholder="ATU">
+      <input type="number" class="maxPV" placeholder="MAX">
+    </div>
+    <div class="divMP">
+      <img class="imgMP"src="img/mp100.png">
+      <input type="number" class="actMP" placeholder="ATU">
+      <input type="number" class="maxMP" placeholder="MAX">
+    </div>
+  </div>
+  <div class="atrDiv">
+      <img class="img" src="img/atrImg.png">
+      <input id="FOR" class="atrFOR" type="number" value="1">
+      <input id="AGI" class="atrAGI" type="number" value="1">
+      <input id="INT" class="atrINT" type="number" value="1">
+      <input id="RES" class="atrRES" type="number" value="1">
+      <input id="CAR" class="atrCAR" type="number" value="1">
+  </div>
+  <h1 class="titl">Modificadores</h1>
+  <div class="modis">
+    <div class="modi">
+      <img class="modiCog" src="img/cogDM.png">
+      <strong class="modiQNT" id="modifica1">0</strong>
+    </div>
+    <div class="modi">
+      <img class="modiCog" src="img/cogDM.png">
+      <strong class="modiQNT" id="modifica2">0</strong>
+    </div>
+    <div class="modi">
+      <img class="modiCog" src="img/cogDM.png">
+      <strong class="modiQNT" id="modifica3">0</strong>
+    </div>
+      <div class="modi">
+      <img class="modiCog" src="img/cogDM.png">
+      <strong class="modiQNT" id="modifica4">0</strong>
+    </div>
+    <div class="modi">
+      <img class="modiCog" src="img/cogDM.png">
+      <strong class="modiQNT" id="modifica5">0</strong>
+    </div>
+  </div>
+  <h1 class="titl">Perícias</h1> <!-- Lista de Perícias separada por Nomenclatura | Quantidade de Dados | Botão pra rodar -->
+  <table id="periList">
+    <tr>
+      <th class="listR">PERÍCIA</th>
+      <th class="listR">DADOS</th>
+      <th class="listR">Roll</th>
+      <th class="listR">TREINO</th>
+      <th class="listR">Bônus</th>
+    </tr>
+    <tr>                        <!-- são 25 listadas abaixo -->
+      <td><label class="peri" id="PericiA" for="pericia1">Arcanismo:</label></td>
+      <td><input type="number" name="Arcanismo" class="periQNT" id="pericia1" placeholder="1"></td>
+      <td><img id="btnPeri1" class="btnRodar" src="img/diceIcon.png"></td>
+      <td><select class="habil" id="habil1">
+        <option class="habils" value="nao">Não</option>
+        <option value="iniciante">Iniciante</option>
+        <option value="treinado">Treinado</option>
+        <option value="competente">Competente</option>
+        <option value="especialista">Especialista</option>
+      </select></td>
+      <td><p id="tBonus1" class="peri">(?)</p></td>
+    </tr>
+    <tr>
+      <td><label class="peri" id="PericiB" for="pericia2">Analisar:</label></td>
+      <td><input type="number" name="Analisar" class="periQNT" id="pericia2" placeholder="1"></td>
+      <td><img id="btnPeri2" class="btnRodar" src="img/diceIcon.png"></td>
+      <td><select class="habil" id="habil2">
+        <option value="nao">Não</option>
+        <option value="iniciante">Iniciante</option>
+        <option value="treinado">Treinado</option>
+        <option value="competente">Competente</option>
+        <option value="especialista">Especialista</option>
+      </select></td>
+      <td><p id="tBonus2" class="peri">(?)</p></td>
+    </tr>
+    <tr>
+      <td><label class="peri" id="PericiC" for="pericia3">Arremessar:</label></td>
+      <td><input type="number" name="Arremessar" class="periQNT" id="pericia3" placeholder="1"></td>
+      <td><img id="btnPeri3" class="btnRodar" src="img/diceIcon.png"></td>
+      <td><select class="habil" id="habil3">
+        <option value="nao">Não</option>
+        <option value="iniciante">Iniciante</option>
+        <option value="treinado">Treinado</option>
+        <option value="competente">Competente</option>
+        <option value="especialista">Especialista</option>
+      </select></td>
+      <td><p id="tBonus3" class="peri">(?)</p></td>
+    </tr>
+    <tr>
+      <td><label class="peri" id="PericiD" for="pericia4">Atletismo:</label></td>
+      <td><input type="number" name="Atletismo" class="periQNT" id="pericia4" placeholder="1"></td>
+      <td><img id="btnPeri4" class="btnRodar" src="img/diceIcon.png"></td>
+      <td><select class="habil" id="habil4">
+        <option value="nao">Não</option>
+        <option value="iniciante">Iniciante</option>
+        <option value="treinado">Treinado</option>
+        <option value="competente">Competente</option>
+        <option value="especialista">Especialista</option>
+      </select></td>
+      <td><p id="tBonus4" class="peri">(?)</p></td>
+    </tr>
+    <tr>
+      <td><label class="peri" id="PericiE" for="pericia5">Atirar:</label></td>
+      <td><input type="number" name="Atirar" class="periQNT" id="pericia5" placeholder="1"></td>
+      <td><img id="btnPeri5" class="btnRodar" src="img/diceIcon.png"></td>
+      <td><select class="habil" id="habil5">
+        <option value="nao">Não</option>
+        <option value="iniciante">Iniciante</option>
+        <option value="treinado">Treinado</option>
+        <option value="competente">Competente</option>
+        <option value="especialista">Especialista</option>
+      </select></td>
+      <td><p id="tBonus5" class="peri">(?)</p></td>
+    </tr>
+    <tr>
+      <td><label class="peri" id="PericiF" for="pericia6">Artes:</label></td>
+      <td><input type="number" name="Artes" class="periQNT" id="pericia6" placeholder="1"></td>
+      <td><img id="btnPeri6" class="btnRodar" src="img/diceIcon.png"></td>
+      <td><select class="habil" id="habil6">
+        <option value="nao">Não</option>
+        <option value="iniciante">Iniciante</option>
+        <option value="treinado">Treinado</option>
+        <option value="competente">Competente</option>
+        <option value="especialista">Especialista</option>
+      </select></td>
+      <td><p id="tBonus6" class="peri">(?)</p></td>
+    </tr>
+    <tr>
+      <td><label class="peri" id="PericiG" for="pericia7">Briga:</label></td>
+      <td><input type="number" name="Briga" class="periQNT" id="pericia7" placeholder="1"></td>
+      <td><img id="btnPeri7" class="btnRodar" src="img/diceIcon.png"></td>
+      <td><select class="habil" id="habil7">
+        <option value="nao">Não</option>
+        <option value="iniciante">Iniciante</option>
+        <option value="treinado">Treinado</option>
+        <option value="competente">Competente</option>
+        <option value="especialista">Especialista</option>
+      </select></td>
+      <td><p id="tBonus7" class="peri">(?)</p></td>
+    </tr>
+    <tr>
+      <td><label class="peri" id="PericiH" for="pericia8">Crime:</label></td>
+      <td><input type="number" name="Crime" class="periQNT" id="pericia8" placeholder="1"></td>
+      <td><img id="btnPeri8" class="btnRodar" src="img/diceIcon.png"></td>
+      <td><select class="habil" id="habil8">
+        <option value="nao">Não</option>
+        <option value="iniciante">Iniciante</option>
+        <option value="treinado">Treinado</option>
+        <option value="competente">Competente</option>
+        <option value="especialista">Especialista</option>
+      </select></td>
+      <td><p id="tBonus8" class="peri">(?)</p></td>
+    </tr>
+    <tr>
+      <td><label class="peri" id="PericiI" for="pericia9">Domar:</label></td>
+      <td><input type="number" name="Domar" class="periQNT" id="pericia9" placeholder="1"></td>
+      <td><img id="btnPeri9" class="btnRodar" src="img/diceIcon.png"></td>
+      <td><select class="habil" id="habil9">
+        <option value="nao">Não</option>
+        <option value="iniciante">Iniciante</option>
+        <option value="treinado">Treinado</option>
+        <option value="competente">Competente</option>
+        <option value="especialista">Especialista</option>
+      </select></td>
+      <td><p id="tBonus9" class="peri">(?)</p></td>
+    </tr>
+    <tr>
+      <td><label class="peri" id="PericiJ" for="pericia10">Dirigir:</label></td>
+      <td><input type="number" name="Dirigir" class="periQNT" id="pericia10" placeholder="1"></td>
+      <td><img id="btnPeri10" class="btnRodar" src="img/diceIcon.png"></td>
+      <td><select class="habil" id="habil10">
+        <option value="nao">Não</option>
+        <option value="iniciante">Iniciante</option>
+        <option value="treinado">Treinado</option>
+        <option value="competente">Competente</option>
+        <option value="especialista">Especialista</option>
+      </select></td>
+      <td><p id="tBonus10" class="peri">(?)</p></td>
+    </tr>
+    <tr>
+      <td><label class="peri" id="PericiK" for="pericia11">Esgrima:</label></td>
+      <td><input type="number" name="Esgrima" class="periQNT" id="pericia11" placeholder="1"></td>
+      <td><img id="btnPeri11" class="btnRodar" src="img/diceIcon.png"></td>
+      <td><select class="habil" id="habil11">
+        <option value="nao">Não</option>
+        <option value="iniciante">Iniciante</option>
+        <option value="treinado">Treinado</option>
+        <option value="competente">Competente</option>
+        <option value="especialista">Especialista</option>
+      </select></td>
+      <td><p id="tBonus11" class="peri">(?)</p></td>
+    </tr>
+    <tr>
+      <td><label class="peri" id="PericiL" for="pericia12">Encantar:</label></td>
+      <td><input type="number" name="Encantar" class="periQNT" id="pericia12" placeholder="1"></td>
+      <td><img id="btnPeri12" class="btnRodar" src="img/diceIcon.png"></td>
+      <td><select class="habil" id="habil12">
+        <option value="nao">Não</option>
+        <option value="iniciante">Iniciante</option>
+        <option value="treinado">Treinado</option>
+        <option value="competente">Competente</option>
+        <option value="especialista">Especialista</option>
+      </select></td>
+      <td><p id="tBonus12" class="peri">(?)</p></td>
+    </tr>
+    <tr>
+      <td><label class="peri" id="PericiM" for="pericia13">Equilibrio:</label></td>
+      <td><input type="number" name="Equilibrio" class="periQNT" id="pericia13" placeholder="1"></td>
+      <td><img id="btnPeri13" class="btnRodar" src="img/diceIcon.png"></td>
+      <td><select class="habil" id="habil13">
+        <option value="nao">Não</option>
+        <option value="iniciante">Iniciante</option>
+        <option value="treinado">Treinado</option>
+        <option value="competente">Competente</option>
+        <option value="especialista">Especialista</option>
+      </select></td>
+      <td><p id="tBonus13" class="peri">(?)</p></td>
+    </tr>
+    <tr>
+      <td><label class="peri" id="PericiN" for="pericia14">Engenharia:</label></td>
+      <td><input type="number" name="Engenharia" class="periQNT" id="pericia14" placeholder="1"></td>
+      <td><img id="btnPeri14" class="btnRodar" src="img/diceIcon.png"></td>
+      <td><select class="habil" id="habil14">
+        <option value="nao">Não</option>
+        <option value="iniciante">Iniciante</option>
+        <option value="treinado">Treinado</option>
+        <option value="competente">Competente</option>
+        <option value="especialista">Especialista</option>
+      </select></td>
+      <td><p id="tBonus14" class="peri">(?)</p></td>
+    </tr>
+    <tr>
+      <td><label class="peri" id="PericiO" for="pericia15">Furtividade:</label></td>
+      <td><input type="number" name="Furtividade" class="periQNT" id="pericia15" placeholder="1"></td>
+      <td><img id="btnPeri15" class="btnRodar" src="img/diceIcon.png"></td>
+      <td><select class="habil" id="habil15">
+        <option value="nao">Não</option>
+        <option value="iniciante">Iniciante</option>
+        <option value="treinado">Treinado</option>
+        <option value="competente">Competente</option>
+        <option value="especialista">Especialista</option>
+      </select></td>
+      <td><p id="tBonus15" class="peri">(?)</p></td>
+    </tr>
+    <tr>
+      <td><label class="peri" id="PericiP" for="pericia16">Intimidar:</label></td>
+      <td><input type="number" name="Intimidar" class="periQNT" id="pericia16" placeholder="1"></td>
+      <td><img id="btnPeri16" class="btnRodar" src="img/diceIcon.png"></td>
+      <td><select class="habil" id="habil16">
+        <option value="nao">Não</option>
+        <option value="iniciante">Iniciante</option>
+        <option value="treinado">Treinado</option>
+        <option value="competente">Competente</option>
+        <option value="especialista">Especialista</option>
+      </select></td>
+      <td><p id="tBonus16" class="peri">(?)</p></td>
+    </tr>
+    <tr>
+      <td><label class="peri" id="PericiQ" for="pericia17">Investigação:</label></td>
+      <td><input type="number" name="Investigação" class="periQNT" id="pericia17" placeholder="1"></td>
+      <td><img id="btnPeri17" class="btnRodar" src="img/diceIcon.png"></td>
+      <td><select class="habil" id="habil17">
+        <option value="nao">Não</option>
+        <option value="iniciante">Iniciante</option>
+        <option value="treinado">Treinado</option>
+        <option value="competente">Competente</option>
+        <option value="especialista">Especialista</option>
+      </select></td>
+      <td><p id="tBonus17" class="peri">(?)</p></td>
+    </tr>
+    <tr>
+      <td><label class="peri" id="PericiR" for="pericia18">Lábia:</label></td>
+      <td><input type="number" name="Lábia" class="periQNT" id="pericia18" placeholder="1"></td>
+      <td><img id="btnPeri18" class="btnRodar" src="img/diceIcon.png"></td>
+      <td><select class="habil" id="habil18">
+        <option value="nao">Não</option>
+        <option value="iniciante">Iniciante</option>
+        <option value="treinado">Treinado</option>
+        <option value="competente">Competente</option>
+        <option value="especialista">Especialista</option>
+      </select></td>
+      <td><p id="tBonus18" class="peri">(?)</p></td>
+    </tr>
+    <tr>
+      <td><label class="peri" id="PericiS" for="pericia19">Medicina:</label></td>
+      <td><input type="number" name="Medicina" class="periQNT" id="pericia19" placeholder="1"></td>
+      <td><img id="btnPeri19" class="btnRodar" src="img/diceIcon.png"></td>
+      <td><select class="habil" id="habil19">
+        <option value="nao">Não</option>
+        <option value="iniciante">Iniciante</option>
+        <option value="treinado">Treinado</option>
+        <option value="competente">Competente</option>
+        <option value="especialista">Especialista</option>
+      </select></td>
+      <td><p id="tBonus19" class="peri">(?)</p></td>
+    </tr>
+    <tr>
+      <td><label class="peri" id="PericiT" for="pericia20">Linguagens:</label></td>
+      <td><input type="number" name="Linguagens" class="periQNT" id="pericia20" placeholder="1"></td>
+      <td><img id="btnPeri20" class="btnRodar" src="img/diceIcon.png"></td>
+      <td><select class="habil" id="habil20">
+        <option value="nao">Não</option>
+        <option value="iniciante">Iniciante</option>
+        <option value="treinado">Treinado</option>
+        <option value="competente">Competente</option>
+        <option value="especialista">Especialista</option>
+      </select></td>
+      <td><p id="tBonus20" class="peri">(?)</p></td>
+    </tr>
+    <tr>
+      <td><label class="peri" id="PericiU" for="pericia21">Psicologia:</label></td>
+      <td><input type="number" name="Psicologia" class="periQNT" id="pericia21" placeholder="1"></td>
+      <td><img id="btnPeri21" class="btnRodar" src="img/diceIcon.png"></td>
+      <td><select class="habil" id="habil21">
+        <option value="nao">Não</option>
+        <option value="iniciante">Iniciante</option>
+        <option value="treinado">Treinado</option>
+        <option value="competente">Competente</option>
+        <option value="especialista">Especialista</option>
+      </select></td>
+      <td><p id="tBonus21" class="peri">(?)</p></td>
+    </tr>
+    <tr>
+      <td><label class="peri" id="PericiV" for="pericia22">Pesquisa:</label></td>
+      <td><input type="number" name="Pesquisa" class="periQNT" id="pericia22" placeholder="1"></td>
+      <td><img id="btnPeri22" class="btnRodar" src="img/diceIcon.png"></td>
+      <td><select class="habil" id="habil22">
+        <option value="nao">Não</option>
+        <option value="iniciante">Iniciante</option>
+        <option value="treinado">Treinado</option>
+        <option value="competente">Competente</option>
+        <option value="especialista">Especialista</option>
+      </select></td>
+      <td><p id="tBonus22" class="peri">(?)</p></td>
+    </tr>
+    <tr>
+      <td><label class="peri" id="PericiW" for="pericia23">Química:</label></td>
+      <td><input type="number" name="Química" class="periQNT" id="pericia23" placeholder="1"></td>
+      <td><img id="btnPeri23" class="btnRodar" src="img/diceIcon.png"></td>
+      <td><select class="habil" id="habil23">
+        <option value="nao">Não</option>
+        <option value="iniciante">Iniciante</option>
+        <option value="treinado">Treinado</option>
+        <option value="competente">Competente</option>
+        <option value="especialista">Especialista</option>
+      </select></td>
+      <td><p id="tBonus23" class="peri">(?)</p></td>
+    </tr>
+    <tr>
+      <td><label class="peri" id="PericiX" for="pericia24">Sobrevivência:</label></td>
+      <td><input type="number" name="Sobrevivência" class="periQNT" id="pericia24" placeholder="1"></td>
+      <td><img id="btnPeri24" class="btnRodar" src="img/diceIcon.png"></td>
+      <td><select class="habil" id="habil24">
+        <option value="nao">Não</option>
+        <option value="iniciante">Iniciante</option>
+        <option value="treinado">Treinado</option>
+        <option value="competente">Competente</option>
+        <option value="especialista">Especialista</option>
+      </select></td>
+      <td><p id="tBonus24" class="peri">(?)</p></td>
+    </tr>
+    <tr>
+      <td><label class="peri" id="PericiY" for="pericia25">Sorte:</label></td>
+      <td><input type="number" name="Sorte" class="periQNT" id="pericia25" placeholder="1"></td>
+      <td><img id="btnPeri25" class="btnRodar" src="img/diceIcon.png"></td>
+    </tr>
+  </table>
+</body>
+</html>
