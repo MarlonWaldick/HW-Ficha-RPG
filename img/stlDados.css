@@ -4,18 +4,34 @@ body {
 	background-color: #131a29;
 }
 
-/* Nome do Personagem */
-.name {
-	text-align: center;
-	margin: 20px;
-	margin-bottom: 40px;
+/* Infos principais do Personagem */
+/* Estrutura das Infos */
+.name {grid-area: nome;}
+.origem {grid-area: origem;}
+.classe {grid-area: classe;}
+.raca {grid-area: raca;}
+.defEsq {grid-area: defesa;}
+
+.topDiv {
+	display: grid;
+	grid-template-areas: 'nome raca defesa' 
+										'origem classe defesa';
+	gap: 4px;
+	padding: 4px;
+	margin: 8px;
 }
 
-.nameLa {
+.name, .origem, .classe, .raca {
+	display: inline;
+}
+
+.nameLa, .origemLa, .classeLa, .racaLa {
 	font-family: "Times New Roman";
 	color: #fff2bf;
 	font-size: 20px;
 }
+
+/* Nome do Personagem */
 .nameIn {
 	text-align: center;
 	font-family: "Lucida Handwriting";
@@ -27,6 +43,64 @@ body {
 .nameIn::placeholder {
 	color: #c7b054;
 	opacity: 0.7;
+}
+
+/* Origem, Classe e Raça do Personagem */
+.origens, .classes, .racas {
+	font-family: "Times New Roman";
+	font-size: 18px;
+	text-align: center;
+	background-color: #131a29;
+	color: #fff2bf;
+	border-color: #fff2bf;
+	height: 25px;
+	width: 265px;
+}
+.origens {
+	margin-left: 36px;
+}
+.racas {
+	margin-left: 12px;
+}
+
+/* Img da Defesa, Esquiva e Defesa Extra do Personagem */
+.defEsq {
+	position: relative;
+	max-width: 180px;
+	width: 100%;
+	margin: 0 auto;
+}
+.imgCD {
+	position: inherit;
+	width: 100%;
+	transform: scale(1.2);
+	transform-origin: center;
+}
+.actCD, .actES, .extCD {
+	position: absolute;
+	text-align: center;
+	transform: translate(-50%, -50%);
+	font-size: 20px;
+	font-family: "Lucida Console";
+	min-width: 30px;
+	max-width: 40px;
+	color: #fff2bf;
+	background-color: #131a29;
+	border-radius: 50px;
+}
+.actCD {
+	top: 45%;
+	left: 48%;
+	max-width: 50px;
+	height: 50px;
+}
+.actES {
+	top: 22%;
+	left: 71%;
+}
+.extCD {
+	top: 80%;
+	left: 35%;
 }
 
 /* Removedor dos Spinners dos campos de input de número */
@@ -123,7 +197,7 @@ input[type=number]::-webkit-inner-spin-button, input[type=number]::-webkit-outer
 .img {
 	max-width: 400px;
 	width: 100%;
-	position: relative;
+	position: inherit;
 	display: block;
 	margin-left: auto;
 	margin-right: auto;
@@ -281,6 +355,24 @@ th {
 
 /* Mudança de posição por responsividade (o toast falta descobrir como fazer pra mudar a pos, já que o @media ta funcionando) */
 @media (max-width: 1200px) {
+	.topDiv {
+	display: grid;
+	grid-template-areas: 'nome origem' 
+										'defesa defesa'
+										'raca classe';
+	gap: 4px;
+	padding: 4px;
+	margin: 8px;
+	}
+	.origens {
+		margin-left: 0px;
+	}
+	.racas {
+		margin-left: 55px;
+	}
+	.classes {
+		margin-left: 9px;
+	}
   .imgHP, .imgSAN, .imgPV, .imgMP {
 	max-width: 220px;
 	}

@@ -127,6 +127,7 @@
     /* Func pra rolar e enviar o resultado do D20 pro displayDado */
       function rolagemDado(habil, modifier) {
         let result = Math.floor(Math.random() * 20) + 1;
+        let plus = $('#' + habil).val(); /* var pro switch de nivel de habilidade */
         switch (result) { /* Switch pra saber se teve um 20/1 natural nos dado, mandando pras vars globais */
           case 20:
             temCritico = 1;
@@ -140,41 +141,42 @@
             break
           }
         console.log("natural: ",result);
+        if (habil != "habil25") {
+          let mod = $('#' + modifier).text(); /* somador do modificador */
+          result += parseInt(mod);
+          console.log("modificado: ", result)
+          
+          switch (plus) {
 
-        let mod = $('#' + modifier).text(); /* somador do modificador */
-        result += parseInt(mod);
-        console.log("modificado: ", result)
+            case "iniciante":
+              result += 3;
+              console.log("iniciante");
+              break
 
-        let plus = $('#' + habil).val(); /* var e switch para o nivel de habilidade */
-        switch (plus) {
+            case "treinado":
+              result += 7;
+              console.log("treinado");
+              break
 
-          case "iniciante":
-            result += 3;
-            console.log("iniciante");
-            break
+            case "competente":
+              result += 14;
+              console.log("competente");
+              break
 
-          case "treinado":
-            result += 7;
-            console.log("treinado");
-            break
+            case "especialista":
+              result += 16;
+              console.log("especialista");
+              break
 
-          case "competente":
-            result += 14;
-            console.log("competente");
-            break
-
-          case "especialista":
-            result += 16;
-            console.log("especialista");
-            break
-
-          case "nao":
-            default:
-              console.log("default");
-              result += 0;
+            case "nao":
+              default:
+                console.log("default");
+                result += 0;
+          }
+          console.log('rolou');
+          return result; 
         }
-        console.log('rolou');
-        return result;
+        else {return result}
       };
       
       /* Func que muda onde o toast fica dependendo da resolução da tela */
@@ -264,8 +266,252 @@
         }
         return total;
       };
-    $(document).ready(function(){
+    function localLoad() { /* Func pra carregar as infos salvas */
+      let nome = localStorage.getItem('nome');
+      let origem = localStorage.getItem('origem');
+      let classe = localStorage.getItem('classe');
+      let raca = localStorage.getItem('raca');
+      let defesa = localStorage.getItem('defesa');
+      let esquiva = localStorage.getItem('esquiva');
+      let defesaex = localStorage.getItem('defesaex');
+      let atuHP = localStorage.getItem('ahp');
+      let maxHP = localStorage.getItem('mhp');
+      let atuSAN = localStorage.getItem('asan');
+      let maxSAN = localStorage.getItem('msan');
+      let atuPV = localStorage.getItem('apv');
+      let maxPV = localStorage.getItem('mpv');
+      let atuMP = localStorage.getItem('amp');
+      let maxMP = localStorage.getItem('mmp');
+      let forca = localStorage.getItem('forca');
+      let agilidade = localStorage.getItem('agilidade');
+      let inteligencia = localStorage.getItem('inteligencia');
+      let resistencia = localStorage.getItem('resistencia');
+      let carisma = localStorage.getItem('carisma');
+      let treino1 = localStorage.getItem('arc');
+      let treino2 = localStorage.getItem('ana');
+      let treino3 = localStorage.getItem('arr');
+      let treino4 = localStorage.getItem('atl');
+      let treino5 = localStorage.getItem('ati');
+      let treino6 = localStorage.getItem('art');
+      let treino7 = localStorage.getItem('bri');
+      let treino8 = localStorage.getItem('cri');
+      let treino9 = localStorage.getItem('dom');
+      let treino10 = localStorage.getItem('dir');
+      let treino11 = localStorage.getItem('esg');
+      let treino12 = localStorage.getItem('enc');
+      let treino13 = localStorage.getItem('equ');
+      let treino14 = localStorage.getItem('eng');
+      let treino15 = localStorage.getItem('fur');
+      let treino16 = localStorage.getItem('int');
+      let treino17 = localStorage.getItem('inv');
+      let treino18 = localStorage.getItem('lab');
+      let treino19 = localStorage.getItem('med');
+      let treino20 = localStorage.getItem('lin');
+      let treino21 = localStorage.getItem('psi');
+      let treino22 = localStorage.getItem('pes');
+      let treino23 = localStorage.getItem('qui');
+      let treino24 = localStorage.getItem('sob');
+      if (nome) {
+          $("#nomeChar").val(nome);
+      }
+
+      if (origem) {
+          $("#oriS").val(origem);
+      }
+
+      if (classe) {
+          $("#claS").val(classe);
+      }
+
+      if (raca) {
+          $("#raS").val(raca);
+      }
+
+      if (defesa) {
+          $("#CDA").val(defesa);
+      }
+
+      if (esquiva) {
+          $("#ESA").val(esquiva);
+      }
+
+      if (defesaex) {
+          $("#CDE").val(defesaex);
+      }
+
+      if (atuHP) {
+          $("#HPA").val(atuHP);
+      }
+
+      if (maxHP) {
+          $("#HPM").val(maxHP);
+      }
+
+      if (atuHP && maxHP) {
+        imgAdjust('actHP', 'maxHP');
+      }
+
+      if (atuSAN) {
+          $("#SANA").val(atuSAN);
+      }
+
+      if (maxSAN) {
+          $("#SANM").val(maxSAN);
+      }
+
+      if (atuSAN && maxSAN) {
+        imgAdjust('actSAN', 'maxSAN');
+      }
+
+      if (atuPV) {
+          $("#PVA").val(atuPV);
+      }
+
+      if (maxPV) {
+          $("#PVM").val(maxPV);
+      }
+
+      if (atuPV && maxPV) {
+        imgAdjust('actPV', 'maxPV');
+      }
+
+      if (atuMP) {
+          $("#MPA").val(atuMP);
+      }
+
+      if (maxMP) {
+          $("#MPM").val(maxMP);
+      }
+
+      if (atuMP && maxMP) {
+        imgAdjust('actMP', 'maxMP');
+      }
+
+      if (forca) {
+          $("#FOR").val(forca);
+          updateMod("FOR", forca);
+      }
+
+      if (agilidade) {
+          $("#AGI").val(agilidade);
+          updateMod("AGI", agilidade);
+      }
+
+      if (inteligencia) {
+          $("#INT").val(inteligencia);
+          updateMod("INT", inteligencia);
+      }
+
+      if (resistencia) {
+          $("#RES").val(resistencia);
+          updateMod("RES", resistencia);
+      }
+
+      if (carisma) {
+          $("#CAR").val(carisma);
+          updateMod("CAR", carisma);
+      }
+
+      if (treino1) {
+          $("#habil1").val(treino1);
+      }
+
+      if (treino2) {
+          $("#habil2").val(treino2);
+      }
+
+      if (treino3) {
+          $("#habil3").val(treino3);
+      }
+
+      if (treino4) {
+          $("#habil4").val(treino4);
+      }
+
+      if (treino5) {
+          $("#habil5").val(treino5);
+      }
+
+      if (treino6) {
+          $("#habil6").val(treino6);
+      }
+
+      if (treino7) {
+          $("#habil7").val(treino7);
+      }
+
+      if (treino8) {
+          $("#habil8").val(treino8);
+      }
+
+      if (treino9) {
+          $("#habil9").val(treino9);
+      }
+
+      if (treino10) {
+          $("#habil10").val(treino10);
+      }
+
+      if (treino11) {
+          $("#habil11").val(treino11);
+      }
+
+      if (treino12) {
+          $("#habil12").val(treino12);
+      }
+
+      if (treino13) {
+          $("#habil13").val(treino13);
+      }
+
+      if (treino14) {
+          $("#habil14").val(treino14);
+      }
+
+      if (treino15) {
+          $("#habil15").val(treino15);
+      }
+
+      if (treino16) {
+          $("#habil16").val(treino16);
+      }
+
+      if (treino17) {
+          $("#habil17").val(treino17);
+      }
+
+      if (treino18) {
+          $("#habil18").val(treino18);
+      }
+
+      if (treino19) {
+          $("#habil19").val(treino19);
+      }
+
+      if (treino20) {
+          $("#habil20").val(treino20);
+      }
+
+      if (treino21) {
+          $("#habil21").val(treino21);
+      }
+
+      if (treino22) {
+          $("#habil22").val(treino22);
+      }
+
+      if (treino23) {
+          $("#habil23").val(treino23);
+      }
+
+      if (treino24) {
+          $("#habil24").val(treino24);
+      }
+    }
+
+    $(document).ready(function(){           // COMEÇO DO DOCUMENT READY
       if (typeof(Storage) !== "undefined") {
+        localLoad();
         console.log("1");
       }
       else {
@@ -325,18 +571,82 @@
       bonus = displayBonus('modifica2', 'habil24')
       $("#tBonus24").text("(" + bonus + ")");
 
-    /* Troca as img dependendo da porcentagem */
+    /* Salvamento de nome, classe, origem e raça */
+      $('#nomeChar').on('change', function() {
+        let info = $(this).val();
+        localStorage.setItem('nome', info)
+      });
+      $('#oriS').on('change', function() {
+        let info = $(this).val();
+        localStorage.setItem('origem', info)
+      });
+      $('#claS').on('change', function() {
+        let info = $(this).val();
+        localStorage.setItem('classe', info)
+      });
+      $('#raS').on('change', function() {
+        let info = $(this).val();
+        localStorage.setItem('raca', info)
+      });
+
+    /* Salvamento da defesa após mudança */
+      $('#CDA').on('change', function() {
+        let info = $(this).val();
+        localStorage.setItem('defesa', info)
+      });
+      $('#ESA').on('change', function() {
+        let info = $(this).val();
+        localStorage.setItem('esquiva', info)
+      });
+      $('#CDE').on('change', function() {
+        let info = $(this).val();
+        localStorage.setItem('defesaex', info)
+      });
+
+    /* Troca as img dependendo da porcentagem e se existir os valores salva no localStorage */
       $('.actHP, .maxHP').on('change', function() {
         imgAdjust('actHP', 'maxHP');
+        let AHP = $('.actHP').val();
+        let MHP = $('.maxHP').val();
+        if (AHP) {
+          localStorage.setItem('ahp', AHP)
+        }
+        if (MHP) {
+          localStorage.setItem('mhp', MHP)
+        }
       });
       $('.actSAN, .maxSAN').on('change', function() {
         imgAdjust('actSAN', 'maxSAN');
+        let ASA = $('.actSAN').val();
+        let MSA = $('.maxSAN').val();
+        if (ASA) {
+          localStorage.setItem('asan', ASA)
+        }
+        if (MSA) {
+          localStorage.setItem('msan', MSA)
+        }
       });
       $('.actPV, .maxPV').on('change', function() {
         imgAdjust('actPV', 'maxPV');
+        let APV = $('.actPV').val();
+        let MPV = $('.maxPV').val();
+        if (APV) {
+          localStorage.setItem('apv', APV)
+        }
+        if (MPV) {
+          localStorage.setItem('mpv', MPV)
+        }
       });
       $('.actMP, .maxMP').on('change', function() {
         imgAdjust('actMP', 'maxMP');
+        let AMP = $('.actMP').val();
+        let MMP = $('.maxMP').val();
+        if (AMP) {
+          localStorage.setItem('amp', AMP)
+        }
+        if (MMP) {
+          localStorage.setItem('mmp', MMP)
+        }
       });
 
     /* ativação por desfoque dos penta de "atributos" */
@@ -344,6 +654,7 @@
           let forca = $("#FOR").val();
           forca = updateAtr(forca);
           $("#FOR").val(forca);
+          localStorage.setItem('forca', forca);
           updateMod("FOR", forca);
 
           /* TRECHO PRA ATUALIZAR OS BÔNUS */
@@ -363,6 +674,7 @@
           let inteligencia = $("#INT").val();
           inteligencia = updateAtr(inteligencia);
           $("#INT").val(inteligencia);
+          localStorage.setItem('inteligencia', inteligencia);
           updateMod("INT", inteligencia);
 
           /* TRECHO PRA ATUALIZAR OS BÔNUS */
@@ -398,6 +710,7 @@
           let carisma = $("#CAR").val();
           carisma = updateAtr(carisma);
           $("#CAR").val(carisma);
+          localStorage.setItem('carisma', carisma);
           updateMod("CAR", carisma);
 
           /* TRECHO PRA ATUALIZAR OS BÔNUS */
@@ -417,6 +730,7 @@
           let resistencia = $("#RES").val();
           resistencia = updateAtr(resistencia);
           $("#RES").val(resistencia);
+          localStorage.setItem('resistencia', resistencia);
           updateMod("RES", resistencia);
 
           /* NÃO TEM BÔNUS PRA ATUALIZAR KKKK */
@@ -426,6 +740,7 @@
           let agilidade = $("#AGI").val();
           agilidade = updateAtr(agilidade);
           $("#AGI").val(agilidade);
+          localStorage.setItem('agilidade', agilidade);
           updateMod("AGI", agilidade);
 
           /* TRECHO PRA ATUALIZAR OS BÔNUS */
@@ -437,7 +752,7 @@
             $("#tBonus15").text("(" + bonus + ")");
       });
 
-    /* ativação por click, passando o nome e o input */
+    /* Rolagem dos dados por click, passando o nome e o input */
       $( "#btnPeri1" ).on( "click", function() {
            displayDado('PericiA','pericia1','habil1','modifica2')
       });
@@ -514,133 +829,256 @@
            displayDado('PericiY','pericia25','habil25','modifica6')
       });
 
-    /* Detectores de mudança para mostrar nos bônus */
+    /* Detectores de mudança dos niveis de treinamento para mostrar nos bônus */
       $("#habil1").on( "change", function() {
+          sTreino = $(this).val();
           bonus = displayBonus('modifica2', 'habil1') /* modificadores de 1 a 5 - FOR, INT, CAR, RES, AGI */
           $("#tBonus1").text("(" + bonus + ")");
+          localStorage.setItem('arc', sTreino);
       });
       $("#habil2").on( "change", function() {
+          sTreino = $(this).val();
           bonus = displayBonus('modifica2', 'habil2')
           $("#tBonus2").text("(" + bonus + ")");
+          localStorage.setItem('ana', sTreino);
       });
       $("#habil3").on( "change", function() {
+          sTreino = $(this).val();
           bonus = displayBonus('modifica1', 'habil3')
           $("#tBonus3").text("(" + bonus + ")");
+          localStorage.setItem('arr', sTreino);
       });
       $("#habil4").on( "change", function() {
+          sTreino = $(this).val();
           bonus = displayBonus('modifica1', 'habil4')
           $("#tBonus4").text("(" + bonus + ")");
+          localStorage.setItem('atl', sTreino);
       });
       $("#habil5").on( "change", function() {
+          sTreino = $(this).val();
           bonus = displayBonus('modifica5', 'habil5')
           $("#tBonus5").text("(" + bonus + ")");
+          localStorage.setItem('ati', sTreino);
       });
       $("#habil6").on( "change", function() {
+          sTreino = $(this).val();
           bonus = displayBonus('modifica2', 'habil6')
           $("#tBonus6").text("(" + bonus + ")");
+          localStorage.setItem('art', sTreino);
       });
       $("#habil7").on( "change", function() {
+          sTreino = $(this).val();
           bonus = displayBonus('modifica1', 'habil7')
           $("#tBonus7").text("(" + bonus + ")");
+          localStorage.setItem('bri', sTreino);
       });
       $("#habil8").on( "change", function() {
+          sTreino = $(this).val();
           bonus = displayBonus('modifica2', 'habil8')
           $("#tBonus8").text("(" + bonus + ")");
+          localStorage.setItem('cri', sTreino);
       });
       $("#habil9").on( "change", function() {
+          sTreino = $(this).val();
           bonus = displayBonus('modifica3', 'habil9')
           $("#tBonus9").text("(" + bonus + ")");
+          localStorage.setItem('dom', sTreino);
       });
       $("#habil10").on( "change", function() {
+          sTreino = $(this).val();
           bonus = displayBonus('modifica2', 'habil10')
           $("#tBonus10").text("(" + bonus + ")");
+          localStorage.setItem('dir', sTreino);
       });
       $("#habil11").on( "change", function() {
+          sTreino = $(this).val();
           bonus = displayBonus('modifica1', 'habil11')
           $("#tBonus11").text("(" + bonus + ")");
+          localStorage.setItem('esg', sTreino);
       });
       $("#habil12").on( "change", function() {
+          sTreino = $(this).val();
           bonus = displayBonus('modifica3', 'habil12')
           $("#tBonus12").text("(" + bonus + ")");
+          localStorage.setItem('enc', sTreino);
       });
       $("#habil13").on( "change", function() {
+          sTreino = $(this).val();
           bonus = displayBonus('modifica5', 'habil13')
           $("#tBonus13").text("(" + bonus + ")");
+          localStorage.setItem('equ', sTreino);
       });
       $("#habil14").on( "change", function() {
+          sTreino = $(this).val();
           bonus = displayBonus('modifica2', 'habil14')
           $("#tBonus14").text("(" + bonus + ")");
+          localStorage.setItem('eng', sTreino);
       });
       $("#habil15").on( "change", function() {
+          sTreino = $(this).val();
           bonus = displayBonus('modifica5', 'habil15')
           $("#tBonus15").text("(" + bonus + ")");
+          localStorage.setItem('fur', sTreino);
       });
       $("#habil16").on( "change", function() {
+          sTreino = $(this).val();
           bonus = displayBonus('modifica3', 'habil16')
           $("#tBonus16").text("(" + bonus + ")");
+          localStorage.setItem('int', sTreino);
       });
       $("#habil17").on( "change", function() {
+          sTreino = $(this).val();
           bonus = displayBonus('modifica2', 'habil17')
           $("#tBonus17").text("(" + bonus + ")");
+          localStorage.setItem('inv', sTreino);
       });
       $("#habil18").on( "change", function() {
+          sTreino = $(this).val();
           bonus = displayBonus('modifica3', 'habil18')
           $("#tBonus18").text("(" + bonus + ")");
+          localStorage.setItem('lab', sTreino);
       });
       $("#habil19").on( "change", function() {
+          sTreino = $(this).val();
           bonus = displayBonus('modifica2', 'habil19')
           $("#tBonus19").text("(" + bonus + ")");
+          localStorage.setItem('med', sTreino);
       });
       $("#habil20").on( "change", function() {
+          sTreino = $(this).val();
           bonus = displayBonus('modifica2', 'habil20')
           $("#tBonus20").text("(" + bonus + ")");
+          localStorage.setItem('lin', sTreino);
       });
       $("#habil21").on( "change", function() {
+          sTreino = $(this).val();
           bonus = displayBonus('modifica2', 'habil21')
           $("#tBonus21").text("(" + bonus + ")");
+          localStorage.setItem('psi', sTreino);
       });
       $("#habil22").on( "change", function() {
+          sTreino = $(this).val();
           bonus = displayBonus('modifica2', 'habil22')
           $("#tBonus22").text("(" + bonus + ")");
+          localStorage.setItem('pes', sTreino);
       });
       $("#habil23").on( "change", function() {
+          sTreino = $(this).val();
           bonus = displayBonus('modifica2', 'habil23')
           $("#tBonus23").text("(" + bonus + ")");
+          localStorage.setItem('qui', sTreino);
       });
       $("#habil24").on( "change", function() {
+          sTreino = $(this).val();
           bonus = displayBonus('modifica2', 'habil24')
           $("#tBonus24").text("(" + bonus + ")");
+          localStorage.setItem('sob', sTreino);
       });
     });
 
   </script>
 </head>
 <body>
-  <div class="name">
-    <label class="nameLa">Personagem: </label>
-    <input class="nameIn" type="text" name="nomeChar" placeholder="Nome">
+  <div class="topDiv"> <!-- Pendente pra botar estrutura de grid layout, não acho uma boa abrir a página até lá -->
+    <div class="name">
+      <label class="nameLa">Personagem: </label>
+      <input class="nameIn" id="nomeChar" type="text" name="nomeChar" placeholder="Nome">
+    </div>
+    <div class="origem">
+      <label class="origemLa">Origem: </label>
+      <select class="origens" id="oriS">
+        <option style = "display:none" disabled selected>--Origem--</option>
+        <option value="academico">Acadêmico</option>
+        <option value="afortunado">Afortunado</option>
+        <option value="atleta">Atleta</option>
+        <option value="attentater">Attentäter</option>
+        <option value="cacadorrecompensa">Caçador de Recompensa</option>
+        <option value="cigana">Cigana</option>
+        <option value="cozinheiro">Cozinheiro</option>
+        <option value="cobaia">Cobaia</option>
+        <option value="curandeirocompassivo">Curandeiro Compassivo</option>
+        <option value="detetive">Detetive</option>
+        <option value="eletricista">Eletricista</option>
+        <option value="elitesoldat">Elitesoldat</option>
+        <option value="espiao">Espião</option>
+        <option value="horosha">Hōrō-sha</option>
+        <option value="mafioso">Mafioso</option>
+        <option value="mecanico">Mecânico</option>
+        <option value="medico">Médico</option>
+        <option value="mestrevodu">Mestre Vodu</option>
+        <option value="meinfuhrer">Mein Führer</option>
+        <option value="militar">Militar</option>
+        <option value="monku">Monku</option>
+        <option value="musico">Músico</option>
+        <option value="navegador">Navegador</option>
+        <option value="operario">Operário</option>
+        <option value="pacificador">Pacificador</option>
+        <option value="politico">Político</option>
+        <option value="quimico">Químico</option>
+        <option value="religioso">Religioso</option>
+        <option value="ronin">Ronin</option>
+        <option value="ryoshi">Ryoshi</option>
+        <option value="shinobi">Shinobi</option>
+        <option value="wissenschaftler">Wissenschaftler</option>
+        <option value="zerstorer">Zerstörer</option>
+      </select>
+    </div>
+    <div class="classe">
+      <label class="classeLa">Classe: </label>
+      <select class="classes" id="claS">
+        <option style = "display:none" disabled selected>--Classe--</option>
+        <option value="atirador">Atirador</option>
+        <option value="duelista">Duelista</option>
+        <option value="estudioso">Estudioso</option>
+        <option value="inventor">Inventor</option>
+        <option value="lutador">Lutador</option>
+        <option value="sombra">Sombra</option>
+      </select>
+    </div>
+    <div class="raca">
+      <label class="racaLa">Raça: </label>
+      <select class="racas" id="raS">
+        <option style = "display:none" disabled selected>--Raça--</option>
+        <option value="automato">Autômato</option>
+        <option value="automatoHu">Autômato (Humanizado)</option>
+        <option value="automatoRu">Autômato (Rúnico)</option>
+        <option value="homunculo">Homúnculo</option>
+        <option value="homunculoCon">Homúnculo (Conectado)</option>
+        <option value="homunculoVerp">Homúnculo (V. Purificado)</option>
+        <option value="homunculoVerg">Homúnculo (V. Ghoul)</option>
+        <option value="humano">Humano</option>
+        <option value="humanoSen">Humano (Sensitivo)</option>
+        <option value="humanoDes">Humano (Despertado)</option>
+      </select>
+    </div>
+    <div class="defEsq">
+      <img class="imgCD" src="img/imgDF.png">
+      <input type="number" class="actCD" id="CDA" placeholder="DF">
+      <input type="number" class="actES" id="ESA" placeholder="SQ">
+      <input type="number" class="extCD" id="CDE" placeholder="XT">
+    </div>
   </div>
   <h1 class="titl">Status</h1>
   <div class="statusInfos">
     <div class="divHP">
       <img class="imgHP"src="img/hp100.png">
-      <input type="number" class="actHP" placeholder="ATU">
-      <input type="number" class="maxHP" placeholder="MAX">
+      <input type="number" class="actHP" id="HPA" placeholder="ATU">
+      <input type="number" class="maxHP" id="HPM" placeholder="MAX">
     </div>
     <div class="divSAN">
       <img class="imgSAN"src="img/san100.png">
-      <input type="number" class="actSAN" placeholder="ATU">
-      <input type="number" class="maxSAN" placeholder="MAX">
+      <input type="number" class="actSAN" id="SANA" placeholder="ATU">
+      <input type="number" class="maxSAN" id="SANM" placeholder="MAX">
     </div>
     <div class="divPV">
       <img class="imgPV"src="img/pv100.png">
-      <input type="number" class="actPV" placeholder="ATU">
-      <input type="number" class="maxPV" placeholder="MAX">
+      <input type="number" class="actPV" id="PVA" placeholder="ATU">
+      <input type="number" class="maxPV" id="PVM" placeholder="MAX">
     </div>
     <div class="divMP">
       <img class="imgMP"src="img/mp100.png">
-      <input type="number" class="actMP" placeholder="ATU">
-      <input type="number" class="maxMP" placeholder="MAX">
+      <input type="number" class="actMP" id="MPA" placeholder="ATU">
+      <input type="number" class="maxMP" id="MPM" placeholder="MAX">
     </div>
   </div>
   <div class="atrDiv">
